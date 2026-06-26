@@ -136,8 +136,15 @@ class ServerAPI:
         )
 
     def import_all(self, buckets: Dict[str, Any]):
-        for bid, bucket in buckets.items():
-            self.import_bucket(bucket)
+        imported: List[str] = []
+        try:
+            for _bid, bucket in buckets.items():
+                self.import_bucket(bucket)
+                imported.append(bucket["id"])
+        except Exception:
+            for bid in imported:
+                self.db.delete_bucket(bid)
+            raise
 
     def create_bucket(
         self,
